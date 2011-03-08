@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2011 Sebastian Tomac (tomac.org)
+ * Licensed under LGPL licenses.
+ * You may obtain a copy of the License at http://www.gnu.org/copyleft/lgpl.html
+ **/
 package org.tomac.tools.converter;
 
 import java.util.ArrayList;
@@ -11,7 +16,5 @@ public class QuickFixMessage {
 	ArrayList<QuickFixComponent> components = new ArrayList<QuickFixComponent>();
 	public String msgId;
 	public String specialization;
-	
-
 
 }
