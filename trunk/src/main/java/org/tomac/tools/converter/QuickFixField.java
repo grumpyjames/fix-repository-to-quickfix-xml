@@ -25,6 +25,7 @@ public class QuickFixField extends QuickBase {
 			this.fixEnum = new String(fixEnum);
 			this.description = new String(description);
 		}
+
 	}
 
 	public String reqd;
@@ -34,6 +35,8 @@ public class QuickFixField extends QuickBase {
 	public String type;
 	public ArrayList<QuickFixValue> quickFixValues = new ArrayList<QuickFixValue>();
 	public boolean belongsToMessage = false;
+
+	public int length;
 
 	public QuickFixField() {
 	}

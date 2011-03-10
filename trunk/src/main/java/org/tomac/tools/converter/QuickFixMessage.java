@@ -9,12 +9,14 @@ import java.util.ArrayList;
 
 /* <message name="Reject" msgcat="admin" msgtype="3"> */
 public class QuickFixMessage {
-	String name = "Reject";
-	String msgcat = "admin";
-	String msgtype = "3";
-	ArrayList<QuickFixField> fields = new ArrayList<QuickFixField>();
-	ArrayList<QuickFixComponent> components = new ArrayList<QuickFixComponent>();
+	public String name = "Reject";
+	public String msgcat = "admin";
+	public String msgtype = "3";
+	public String msgsubtype = "";
+	public ArrayList<QuickFixField> fields = new ArrayList<QuickFixField>();
+	public ArrayList<QuickFixComponent> components = new ArrayList<QuickFixComponent>();
 	public String msgId;
 	public String specialization;
+	public String direction;
 
 }
