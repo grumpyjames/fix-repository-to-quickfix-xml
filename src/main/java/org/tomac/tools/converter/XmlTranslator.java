@@ -21,7 +21,10 @@ import org.tomac.tools.converter.QuickFixField.QuickFixValue;
 import org.tomac.tools.converter.nordic.NordicUtils;
 
 public class XmlTranslator {
-
+	
+	private boolean isFixT = false;
+	final ArrayList<QuickFixField> fixTFields = new ArrayList<QuickFixField>();
+	
 	private void addField(Element e, QuickFixField f) {
 		e.addElement("field").addAttribute("name", f.name).addAttribute("required", f.reqd != null && f.reqd.equals("1") ? "Y" : "N");
 
@@ -36,17 +39,36 @@ public class XmlTranslator {
 
 	public Document createDocument(FixRepositoryDom fixDom) {
 		final Document document = DocumentHelper.createDocument();
-		Element root = document.addElement("fix").addAttribute("major", fixDom.major).addAttribute("minor", fixDom.minor)
-				.addAttribute("servicepack", "0").addAttribute("type", "FIX").addAttribute("package", System.getProperty("package", "org.tomac.protocol.fix.messaging"));
+		Element root;
+		if (FixRepositoryToQuickFixXml.isStrictQuickFix) {
+			if (fixDom.type.equals("FIXT")) isFixT = true;
+			root = document.addElement("fix").addAttribute("major", fixDom.major).addAttribute("minor", fixDom.minor)
+				.addAttribute("servicepack", fixDom.servicepack).addAttribute("type", fixDom.type);
+		} else {
+			root = document.addElement("fix").addAttribute("major", fixDom.major).addAttribute("minor", fixDom.minor)
+			.addAttribute("servicepack", fixDom.servicepack).addAttribute("type", fixDom.type).addAttribute("package", FixRepositoryToQuickFixXml.javaPackage)
+			.addAttribute("flavour", FixRepositoryToQuickFixXml.fixFlavour);
+		}
 
 		final Element header = root.addElement("header");
-		for (final QuickFixField f : fixDom.quickFixHeader.fields) {
-			addField(header, f);
+
+		if(!FixRepositoryToQuickFixXml.isStrictQuickFix || isFixT || Integer.valueOf(fixDom.major)<5) {
+			for (final QuickFixField f : fixDom.quickFixHeader.fields) {
+				fixTFields.add(f);
+				addField(header, f);
+			}
 		}
 
 		final Element messages = root.addElement("messages");
 		for (final QuickFixMessage m : fixDom.quickFixMessages) {
 			String name;
+			
+			// strict quickfix has separate xml for FIXT
+			if (FixRepositoryToQuickFixXml.isStrictQuickFix && isFixT && !m.msgcat.equals("Session")) {
+				continue;
+			} else if (FixRepositoryToQuickFixXml.isStrictQuickFix && m.msgcat.equals("Session") && Integer.valueOf(fixDom.major)>4) {
+				continue;
+			}
 
 			if (FixRepositoryToQuickFixXml.isNasdaqOMX && m.specialization != null) {
 				final String n = m.specialization.replaceAll("-", "").replaceAll(" ", "").replaceAll("[(]fill[)]", "Fill");
@@ -92,7 +114,7 @@ public class XmlTranslator {
 						continue;
 					}
 
-					message.addElement("component").addAttribute("name", c.name).addAttribute("required", c.reqd);
+					message.addElement("component").addAttribute("name", c.name).addAttribute("required", c.reqd.equals("0")?"N":"Y");
 				}
 
 			}
@@ -100,8 +122,11 @@ public class XmlTranslator {
 		}
 
 		final Element trailer = root.addElement("trailer");
-		for (final QuickFixField f : fixDom.quickFixTrailer.fields) {
-			addField(trailer, f);
+
+		if(!FixRepositoryToQuickFixXml.isStrictQuickFix || isFixT || Integer.valueOf(fixDom.major)<5) {
+			for (final QuickFixField f : fixDom.quickFixTrailer.fields) {
+				addField(trailer, f);
+			}
 		}
 
 		final Element components = root.addElement("components");
@@ -112,8 +137,34 @@ public class XmlTranslator {
 			if (c.name.equals("StandardTrailer")) {
 				continue;
 			}
+			
+			// ugh hardcoded components for FIXT
+			// strict quickfix has separate xml for FIXT
+			if (FixRepositoryToQuickFixXml.isStrictQuickFix && isFixT && !c.name.equals("HopGrp") && !c.name.equals("MsgTypeGrp")) {
+				continue;
+			} else if (FixRepositoryToQuickFixXml.isStrictQuickFix && (c.name.equals("HopGrp") || c.name.equals("MsgTypeGrp")) && Integer.valueOf(fixDom.major)>4) {
+				continue;
+			}
 
+			for (QuickFixField f : c.fields)
+				fixTFields.add(f);
+			
 			final Element component = components.addElement("component").addAttribute("name", c.name);
+
+			final ArrayList<QuickBase> qq = new ArrayList<QuickBase>();
+			qq.addAll(c.fields);
+
+			Collections.sort(qq);
+			QuickFixField qf = null;
+			for (final QuickBase q : qq) {
+
+				if (q instanceof QuickFixField) {
+					qf = (QuickFixField) q;
+					break;
+				}
+			}			
+			
+			final Element group = c.isRepeating?component.addElement("group").addAttribute("name", qf.name).addAttribute("required", qf.reqd.equals("0")?"N":"Y"):component;
 
 			final ArrayList<QuickBase> qQ = new ArrayList<QuickBase>();
 			qQ.addAll(c.fields);
@@ -129,53 +180,73 @@ public class XmlTranslator {
 					if (f.name.toLowerCase().contains(" ")) {
 						continue;
 					}
+					
+					if (f.type.equalsIgnoreCase("NUMINGROUP")) {
+						continue;
+					}
 
-					component.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number).addAttribute("type", getType(f.type));
+					group.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number).addAttribute("type", getType(f.type));
 				}
 
 				if (q instanceof QuickFixComponent) {
 					final QuickFixComponent cc = (QuickFixComponent) q;
-					component.addElement("component").addAttribute("name", cc.name).addAttribute("required", cc.reqd);
+					group.addElement("component").addAttribute("name", cc.name).addAttribute("required", cc.reqd.equals("0")?"N":"Y");
 				}
 			}
 		}
 
 		final Element fields = root.addElement("fields");
-		for (final QuickFixField f : fixDom.quickFixFields) {
 
-			if (f.name.toLowerCase().contains(" ")) {
-				continue;
+		if (FixRepositoryToQuickFixXml.isStrictQuickFix) {
+			for (final QuickFixField f : fixTFields) {
+				addField(f, fields);
 			}
-
-			Element field;
-			if (FixRepositoryToQuickFixXml.isNasdaqOMX && NordicUtils.isTagWithLength(f.number)) {
-				field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
-					.addAttribute("type", getType(f.type)).addAttribute("length", NordicUtils.getTagLength(f.number));
-			} else {
-				field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
-				.addAttribute("type", getType(f.type));
+		} else {
+			for (final QuickFixField f : fixDom.quickFixFields) {
+				addField(f, fields);
 			}
-
-			HashMap<String, QuickFixValue> quickFixNamedValue = new HashMap<String, QuickFixValue>();
-			for (final QuickFixValue v : f.quickFixValues) {
-				quickFixNamedValue.put(v.fixEnum, v);
-			}
-
-			for (final QuickFixValue v : quickFixNamedValue.values()) {
-				if (v.fixEnum.length() == 0) continue; // NasdaqOMX bug 
-				field.addElement("value").addAttribute("enum", v.fixEnum).addAttribute("description", getDescription(v.description));
-			}
-
 		}
 
 		return document;
+	}
+
+	private void addField(QuickFixField f, Element fields) {
+		
+		if (f.name.toLowerCase().contains(" ")) {
+			return;
+		}
+
+		Element field;
+		if (FixRepositoryToQuickFixXml.isNasdaqOMX && NordicUtils.isTagWithLength(f.number)) {
+			field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
+				.addAttribute("type", getType(f.type)).addAttribute("length", NordicUtils.getTagLength(f.number));
+		} else {
+			field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
+			.addAttribute("type", getType(f.type));
+		}
+
+		HashMap<String, QuickFixValue> quickFixNamedValue = new HashMap<String, QuickFixValue>();
+		for (final QuickFixValue v : f.quickFixValues) {
+			quickFixNamedValue.put(v.fixEnum, v);
+		}
+		// NasdaqOMX bug
+		if (FixRepositoryToQuickFixXml.isNasdaqOMX && f.name.equalsIgnoreCase("ExecTransType")) {
+			for (final QuickFixValue v : NordicUtils.getExecTransAdditionalTypes(f)) {
+				quickFixNamedValue.put(v.fixEnum, v);
+			}
+		}
+
+		for (final QuickFixValue v : quickFixNamedValue.values()) {
+			if (v.fixEnum.length() == 0) continue; // NasdaqOMX bug 
+			field.addElement("value").addAttribute("enum", v.fixEnum).addAttribute("description", getDescription(v.description));
+		}
 	}
 
 	private String getDescription(String description) {
 		String tmp = description.toUpperCase().replaceAll(" ", "_").replaceAll("__", "_").
 		replaceAll("[^0-9A-Z_]", "");
 		if (tmp.substring(0,1).matches("[0-9]")) tmp = "I" + tmp; 
-		return tmp.substring(0, tmp.length() > 32 ? 32 : tmp.length());
+		return tmp.substring(0, tmp.length() > 64 ? 64 : tmp.length());
 	}
 
 	private String getMsgCat(String msgcat) {
@@ -186,6 +257,7 @@ public class XmlTranslator {
 	}
 
 	private String getType(String type) {
+		if(type.toUpperCase().equals("MULTIPLEVALUESTRING")) return "MULTIPLESTRINGVALUE"; // Nasdaq OMX bug
 		return type.toUpperCase();
 	}
 

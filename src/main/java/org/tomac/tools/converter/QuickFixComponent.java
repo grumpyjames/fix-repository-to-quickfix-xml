@@ -31,6 +31,7 @@ public class QuickFixComponent extends QuickBase {
 	public String msgId;
 	public String keyTag;
 	public String reqd;
+	public boolean isRepeating;
 
 	public QuickFixComponent() {
 	}
@@ -41,6 +42,7 @@ public class QuickFixComponent extends QuickBase {
 		fields = q.fields;
 		components = q.components;
 		msgId = q.msgId;
+		isRepeating = q.isRepeating;
 		keyTag = q.keyTag;
 		this.reqd = new String(reqd);
 		this.position = position;

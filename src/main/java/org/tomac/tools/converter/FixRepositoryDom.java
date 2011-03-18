@@ -13,14 +13,14 @@ import org.dom4j.Element;
 
 public class FixRepositoryDom {
 
-	public String major = System.getProperty("FixMajorVersion", "4");
-
-	public String type = "FIX";
-
-	public String servicepack = "0";
-
-	public String minor = System.getProperty("FixMinorVersion", "2");
-
+	public String major;
+	
+	public String type;
+	
+	public String servicepack;
+	
+	public String minor;
+	
 	public ArrayList<QuickFixMessage> quickFixMessages = new ArrayList<QuickFixMessage>();
 
 	public HashMap<String, QuickFixMessage> quickFixNamedMessages = new HashMap<String, QuickFixMessage>();
@@ -40,11 +40,31 @@ public class FixRepositoryDom {
 	public ArrayList<QuickFixField> quickFixFields = new ArrayList<QuickFixField>();
 
 	public HashMap<String, QuickFixField> quickFixNamedFields = new HashMap<String, QuickFixField>();
+	
+	public FixRepositoryDom() {
+		String v = FixRepositoryToQuickFixXml.fixVersion;
+		type = v.substring(0,4).equals("FIXT")?"FIXT":"FIX";
+		if (type.equals("FIX")) {
+			major = v.substring(4,5);
+			minor = v.substring(6,7);
+		} else { // FIXT
+			major = v.substring(5,6);
+			minor = v.substring(7,8);
+		}
+		servicepack = v.split("P").length>1?v.split("P")[1]:"0";
+	}
 
 	/*
 	 * <Components> <NasdaqOMX/> <ComponentType>Block</ComponentType>
 	 * <ComponentName>StandardHeader</ComponentName>
 	 * <Category>Session</Category> <MsgID>1001</MsgID> </Components>
+	 *    <Components>
+      <ComponentName>SettlParties</ComponentName>
+      <ComponentType>BlockRepeating</ComponentType>
+      <Category>Common</Category>
+      <MsgID>1017</MsgID>
+   	*	</Components>
+	 * 
 	 */
 	public void parseComponents(Element element) {
 
@@ -60,6 +80,9 @@ public class FixRepositoryDom {
 				}
 				if (n.getName().equals("ComponentName")) {
 					m.name = n.getText().trim();
+				}
+				if (n.getName().equals("ComponentType")) {
+					m.isRepeating = n.getText().trim().endsWith("BlockRepeating")?true:false;
 				}
 			}
 			quickFixComponents.add(m);
@@ -184,34 +207,39 @@ public class FixRepositoryDom {
 			if (quickFixNamedFields.get(tagText) != null) {
 				f = new QuickFixField(quickFixNamedFields.get(tagText), reqd, position);
 			}
+			
 			final QuickFixMessage m = quickFixMsgIDMessages.get(msgId);
+
 			QuickFixComponent c = null;
 			if (quickFixNamedComponents.get(tagText) != null) {
 				c = new QuickFixComponent(quickFixNamedComponents.get(tagText), reqd, position);
 			}
 			final QuickFixComponent cC = quickFixMsgIDComponents.get(msgId);
 
-			if (indent == indentOld) {
-				if (m != null && f != null) { // field in message
-					m.fields.add(f);
-				} else if (m != null && c != null && f == null) { // component
-																	// in
-																	// message
-					m.components.add(c);
-				} else if (m == null && cC != null && f != null) { // field in
-																	// component
-					cC.fields.add(f);
-				} else if (c != null && cC != null && f == null) { // component
-																	// in
-																	// component
+			if (m != null && f != null) { // field in message
+				m.fields.add(f);
+			} 
+			
+			if (m != null && c != null && f == null) {  // component
+														// in
+														// message
+				m.components.add(c);
+			} 
+			
+			if (m == null && cC != null && f != null) { // field in
+														// component
+				cC.fields.add(f);
+			} 
+			
+			if (c != null && cC != null && f == null) { // component
+														// in
+														// component
 					cC.components.add(c);
-				}
-
 			}
 
 		}
 
-		// specail hearder and tail
+		// special hearder and tail
 		quickFixHeader = quickFixNamedComponents.get("StandardHeader");
 
 		quickFixTrailer = quickFixNamedComponents.get("StandardTrailer");

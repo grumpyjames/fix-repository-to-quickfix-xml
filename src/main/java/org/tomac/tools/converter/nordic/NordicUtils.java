@@ -1,8 +1,19 @@
 package org.tomac.tools.converter.nordic;
 
+import org.tomac.tools.converter.QuickFixField;
+import org.tomac.tools.converter.QuickFixField.QuickFixValue;
+
 
 public class NordicUtils {
 
+	public static QuickFixValue[] getExecTransAdditionalTypes(QuickFixField f) {
+		QuickFixValue[] values = { f.new QuickFixValue("I","Reject") ,
+				f.new QuickFixValue("8","Rejected") ,
+				f.new QuickFixValue("1","PartialFill") ,
+				f.new QuickFixValue("2","Fill") };
+		return values;
+	}
+	
 	public static boolean isTagWithLength(String tag) {
 		// Tag		Max Length
 		if (getTagLength(tag).length()>0) return true;
@@ -10,6 +21,9 @@ public class NordicUtils {
 	}
 
 	public static String getTagLength(String tag) {
+		// Session
+		if (tag.equals("10")) return "3";
+		// Application
 		if (tag.equals("11")) return "20";
 		if (tag.equals("37")) return "32";
 		if (tag.equals("41")) return "20";
