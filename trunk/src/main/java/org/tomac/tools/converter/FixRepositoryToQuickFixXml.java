@@ -19,16 +19,34 @@ public class FixRepositoryToQuickFixXml {
 	static String FIELDS_XML = "Fields.xml";
 	static String ENUMS_XML = "Enums.xml";
 	static String MSGCONTENTS_XML = "MsgContents.xml";
-	public static boolean isNasdaqOMX = true;
+	public static boolean isStrictQuickFix = false;
+	public static boolean isNasdaqOMX = false;
+	public static String fixVersion = "FIX.5.0SP2";
+	public static String fixFlavour = "FIXRepository_FIX.5.0SP2 from www.fixprotocol.org";
+	public static String javaPackage = "org.tomac.protocol.fix.messaging";
 
 	public static void main(String[] args) {
 		if (args.length < 1) {
 			System.out.println("Usage: FixRepositoryToQuickFixXml [FIX repository directory] [output file]");
+			System.out.println("Property(default)");
+			System.out.println("isStrictQuickFix(false)]");
+			System.out.println("isNasdaqOMX(false)]");
+			System.out.println("fixVersion(FIX.5.0SP2");
+			System.out.println("fixFlavour(FIXRepository_FIX.5.0SP2 from www.fixprotocol.org)");
 
 			return;
 		}
 
 		final File repositoryDir = new File(args[0]);
+		
+		isNasdaqOMX = Boolean.valueOf(System.getProperty("isNasdaqOMX", String.valueOf(isNasdaqOMX)));
+		System.out.println("isNasdaqOMX=" + isNasdaqOMX);
+		fixVersion = System.getProperty("fixVersion", fixVersion);
+		System.out.println("fixVersion=" + fixVersion);
+		fixFlavour = System.getProperty("fixFlavour", fixFlavour);
+		System.out.println("fixFlavour=" + fixFlavour);
+		isStrictQuickFix = Boolean.valueOf(System.getProperty("isStrictQuickFix", "false"));
+		System.out.println("isStrictQuickFix=" + isStrictQuickFix);
 
 		if (!repositoryDir.exists() || !repositoryDir.isDirectory()) {
 			System.out.println("FIX Repository dir " + args[0] + " cannot be found!");

@@ -45,6 +45,7 @@ public class QuickFixField extends QuickBase {
 		number = q.number;
 		name = q.name;
 		type = q.type;
+		length = q.length;
 		quickFixValues = q.quickFixValues;
 		belongsToMessage = q.belongsToMessage;
 		reqd = new String(req != null ? req : "0");
