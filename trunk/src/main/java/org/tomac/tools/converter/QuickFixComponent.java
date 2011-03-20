@@ -22,16 +22,15 @@ import java.util.ArrayList;
  */
 public class QuickFixComponent extends QuickBase {
 
-	String name;
-
-	String noName;
-
+	public String name;
+	public String noName;
 	public ArrayList<QuickFixField> fields = new ArrayList<QuickFixField>();
 	public ArrayList<QuickFixComponent> components = new ArrayList<QuickFixComponent>();
 	public String msgId;
 	public String keyTag;
 	public String reqd;
 	public boolean isRepeating;
+	public String noInGroupTag;
 
 	public QuickFixComponent() {
 	}
