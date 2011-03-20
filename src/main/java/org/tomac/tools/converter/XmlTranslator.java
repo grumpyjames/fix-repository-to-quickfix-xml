@@ -69,6 +69,10 @@ public class XmlTranslator {
 			} else if (FixRepositoryToQuickFixXml.isStrictQuickFix && m.msgcat.equals("Session") && Integer.valueOf(fixDom.major)>4) {
 				continue;
 			}
+			
+			if (m.name.equalsIgnoreCase("XML_non_FIX")) { // fixprotocol.org bug, empty message
+				continue;
+			}
 
 			if (FixRepositoryToQuickFixXml.isNasdaqOMX && m.specialization != null) {
 				final String n = m.specialization.replaceAll("-", "").replaceAll(" ", "").replaceAll("[(]fill[)]", "Fill");
@@ -104,6 +108,7 @@ public class XmlTranslator {
 						continue;
 					}
 					addField(message, f);
+					fixTFields.add(f);
 				}
 
 				// <component name="Parties" required="N"/>
@@ -125,6 +130,7 @@ public class XmlTranslator {
 
 		if(!FixRepositoryToQuickFixXml.isStrictQuickFix || isFixT || Integer.valueOf(fixDom.major)<5) {
 			for (final QuickFixField f : fixDom.quickFixTrailer.fields) {
+				fixTFields.add(f);
 				addField(trailer, f);
 			}
 		}
@@ -210,10 +216,16 @@ public class XmlTranslator {
 		return document;
 	}
 
+	HashMap<String, QuickFixField> fieldsUnique = new HashMap<String, QuickFixField>();
+	
 	private void addField(QuickFixField f, Element fields) {
 		
 		if (f.name.toLowerCase().contains(" ")) {
 			return;
+		}
+
+		if (null != fieldsUnique.put(f.name, f)) {
+			return; // field already added
 		}
 
 		Element field;
@@ -238,7 +250,7 @@ public class XmlTranslator {
 
 		for (final QuickFixValue v : quickFixNamedValue.values()) {
 			if (v.fixEnum.length() == 0) continue; // NasdaqOMX bug 
-			field.addElement("value").addAttribute("enum", v.fixEnum).addAttribute("description", getDescription(v.description));
+			field.addElement("value").addAttribute("enum", v.fixEnum.replaceAll("[\\s\\xA0]", "")).addAttribute("description", getDescription(v.description));
 		}
 	}
 
@@ -246,6 +258,12 @@ public class XmlTranslator {
 		String tmp = description.toUpperCase().replaceAll(" ", "_").replaceAll("__", "_").
 		replaceAll("[^0-9A-Z_]", "");
 		if (tmp.substring(0,1).matches("[0-9]")) tmp = "I" + tmp; 
+		
+		// to long for name differentiation 
+		if( tmp.contains("EXACT_MATCH_ON_TRADE_DATE_STOCK_SYMBOL_QUANTITY") ) {
+			tmp = tmp.replace("EXACT_MATCH_ON_TRADE_DATE_STOCK_SYMBOL_QUANTITY", "");
+		}
+		
 		return tmp.substring(0, tmp.length() > 64 ? 64 : tmp.length());
 	}
 
