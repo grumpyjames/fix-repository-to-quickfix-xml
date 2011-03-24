@@ -124,6 +124,10 @@ public class XmlTranslator {
 					if (c.name.equals("StandardHeader") || c.name.equals("StandardTrailer")) {
 						continue;
 					}
+					
+					if (FixRepositoryToQuickFixXml.isNasdaqOMX && (c.name.equalsIgnoreCase("LegPreAllocGrp") || c.name.equalsIgnoreCase("PreAllocGrp") || c.name.equalsIgnoreCase("TrdAllocGrp")) ) {
+						continue; // jet another Nasdaq OMX bug
+					}
 
 					message.addElement("component").addAttribute("name", c.name).addAttribute("required", c.reqd.equals("0")?"N":"Y");
 				}
@@ -156,6 +160,10 @@ public class XmlTranslator {
 				continue;
 			} else if (FixRepositoryToQuickFixXml.isStrictQuickFix && (c.name.equals("HopGrp") || c.name.equals("MsgTypeGrp")) && Integer.valueOf(fixDom.major)>4) {
 				continue;
+			}
+
+			if (FixRepositoryToQuickFixXml.isNasdaqOMX && (c.name.equalsIgnoreCase("LegPreAllocGrp") || c.name.equalsIgnoreCase("PreAllocGrp") || c.name.equalsIgnoreCase("TrdAllocGrp")) ) {
+				continue; // jet another Nasdaq OMX bug
 			}
 
 			for (QuickFixField f : c.fields)
@@ -209,6 +217,11 @@ public class XmlTranslator {
 
 				if (q instanceof QuickFixComponent) {
 					final QuickFixComponent cc = (QuickFixComponent) q;
+
+					if (FixRepositoryToQuickFixXml.isNasdaqOMX && (cc.name.equalsIgnoreCase("LegPreAllocGrp") || cc.name.equalsIgnoreCase("PreAllocGrp") || cc.name.equalsIgnoreCase("TrdAllocGrp")) ) {
+						continue; // jet another Nasdaq OMX bug
+					}
+					
 					group.addElement("component").addAttribute("name", cc.name).addAttribute("required", cc.reqd.equals("0")?"N":"Y");
 				}
 			}
