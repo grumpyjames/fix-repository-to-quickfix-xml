@@ -108,6 +108,11 @@ public class XmlTranslator {
 					if (f.name.toLowerCase().contains("no longer used") || f.name.toLowerCase().contains("not defined")) {
 						continue;
 					}
+					
+					if (f.type.equalsIgnoreCase("NUMINGROUP")) {
+						continue;
+					}
+					
 					addField(message, f);
 					fixTFields.add(f);
 				}
