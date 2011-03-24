@@ -21,6 +21,8 @@ public class FixRepositoryDom {
 	
 	public String minor;
 	
+	public String flavour;
+	
 	public ArrayList<QuickFixMessage> quickFixMessages = new ArrayList<QuickFixMessage>();
 
 	public HashMap<String, QuickFixMessage> quickFixNamedMessages = new HashMap<String, QuickFixMessage>();
@@ -66,6 +68,7 @@ public class FixRepositoryDom {
    	*	</Components>
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseComponents(Element element) {
 
 		for (final Iterator<Element> i = element.elementIterator("Components"); i.hasNext();) {
@@ -96,6 +99,7 @@ public class FixRepositoryDom {
 	 * Replace</Specialization> </NasdaqOMX> <Tag>20</Tag> <Enum>0</Enum>
 	 * <Description>New</Description> </Enums>
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseEnums(Element element) {
 
 		for (final Iterator<Element> i = element.elementIterator("Enums"); i.hasNext();) {
@@ -130,6 +134,7 @@ public class FixRepositoryDom {
 	 * <Type>int</Type> <Desc>Code to identify reason for order
 	 * rejection.</Desc> </Fields>
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseFields(Element element) {
 
 		for (final Iterator<Element> i = element.elementIterator("Fields"); i.hasNext();) {
@@ -162,14 +167,13 @@ public class FixRepositoryDom {
 	 * <Reqd>0</Reqd> <Position>20</Position> <TagText>48</TagText>
 	 * </MsgContents>
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseMsgContents(Element element) {
 
 		for (final Iterator<Element> i = element.elementIterator("MsgContents"); i.hasNext();) {
 			String msgId = null;
 			String reqd = null;
 			String tagText = null;
-			final int indentOld = 0;
-			int indent = 0;
 			String position = null;
 
 			final Element e = i.next();
@@ -185,9 +189,6 @@ public class FixRepositoryDom {
 				}
 				if (n.getName().equals("TagText")) {
 					tagText = n.getText().trim();
-				}
-				if (n.getName().equals("Indent")) {
-					indent = Integer.valueOf(n.getText().trim());
 				}
 				if (n.getName().equals("Position")) {
 					position = n.getText().trim();
@@ -254,6 +255,7 @@ public class FixRepositoryDom {
 	 * <MsgType>8</MsgType> <MessageName>Execution Report</MessageName>
 	 * </MsgType>
 	 */
+	@SuppressWarnings("unchecked")
 	public void parseMsgType(Element element) throws Exception {
 
 		for (final Iterator<Element> i = element.elementIterator("MsgType"); i.hasNext();) {

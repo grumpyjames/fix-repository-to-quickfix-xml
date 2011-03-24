@@ -5,6 +5,11 @@ import org.tomac.tools.converter.QuickFixField.QuickFixValue;
 
 
 public class NordicUtils {
+	private static String version = "FIX.4.2";
+	
+	public static void setVersion(String v) {
+		version = v;
+	}
 
 	public static QuickFixValue[] getExecTransAdditionalTypes(QuickFixField f) {
 		QuickFixValue[] values = { f.new QuickFixValue("I","Reject") ,
@@ -22,6 +27,9 @@ public class NordicUtils {
 
 	public static String getTagLength(String tag) {
 		// Session
+		if (tag.equals("8")) return String.valueOf(version.length());
+		if (tag.equals("35")) return "2";
+		if (tag.equals("9")) return "3";
 		if (tag.equals("10")) return "3";
 		// Application
 		if (tag.equals("11")) return "20";

@@ -18,6 +18,7 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.tomac.tools.converter.QuickFixField.QuickFixValue;
+import org.tomac.tools.converter.fixprotocol.FixProtocolUtils;
 import org.tomac.tools.converter.nordic.NordicUtils;
 
 public class XmlTranslator {
@@ -175,6 +176,13 @@ public class XmlTranslator {
 			final ArrayList<QuickBase> qQ = new ArrayList<QuickBase>();
 			qQ.addAll(c.fields);
 			qQ.addAll(c.components);
+			
+			// nordic bug NestedParties, NestedParties2.. us Parties fields
+			if (FixRepositoryToQuickFixXml.isNasdaqOMX && c.name.contains("NestedParties")) {
+				QuickFixComponent cParties = fixDom.quickFixNamedComponents.get("Parties");
+				qQ.addAll(cParties.fields);
+				qQ.addAll(cParties.components);
+			}
 
 			Collections.sort(qQ);
 
@@ -232,6 +240,9 @@ public class XmlTranslator {
 		if (FixRepositoryToQuickFixXml.isNasdaqOMX && NordicUtils.isTagWithLength(f.number)) {
 			field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
 				.addAttribute("type", getType(f.type)).addAttribute("length", NordicUtils.getTagLength(f.number));
+		} else if (FixProtocolUtils.isTagWithLength(f.number)) {
+			field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
+			.addAttribute("type", getType(f.type)).addAttribute("length", FixProtocolUtils.getTagLength(f.number));
 		} else {
 			field = fields.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number)
 			.addAttribute("type", getType(f.type));
@@ -249,12 +260,23 @@ public class XmlTranslator {
 		}
 
 		for (final QuickFixValue v : quickFixNamedValue.values()) {
-			if (v.fixEnum.length() == 0) continue; // NasdaqOMX bug 
-			field.addElement("value").addAttribute("enum", v.fixEnum.replaceAll("[\\s\\xA0]", "")).addAttribute("description", getDescription(v.description));
+			if (v.fixEnum.length() == 0) continue; // NasdaqOMX bug
+			field.addElement("value").addAttribute("enum", v.fixEnum.replaceAll("[\\s\\xA0]", "")).addAttribute("description", getDescription(v.description, v.fixEnum));
 		}
 	}
 
-	private String getDescription(String description) {
+	private String getDescription(String description, String fixEnum) {
+
+		if (FixRepositoryToQuickFixXml.isNasdaqOMX) {
+			// NasdaqOMX bug messed up comments RequiredTagMissing -> "Required tag missing"
+			if (description.equalsIgnoreCase("RequiredTagMissing")) description = "Required Tag Missing"; 
+			if (description.equalsIgnoreCase("InvalidTagNumber")) description = "Invalid Tag Number"; 
+			if (description.equalsIgnoreCase("IncorrectNumInGroupCountForRepeatingGroup")) description = "Incorrect NumInGroup Count For Repeating Group"; 
+			if (description.equalsIgnoreCase("ValueIsIncorrectOutOfRangeForThisTag")) description = "Value Is Incorrect Out Of Range For This Tag"; 
+			if (description.equalsIgnoreCase("TagSpecifiedWithoutAValue")) description = "Tag Specified Without A Value"; 
+			if (description.equalsIgnoreCase("UndefinedTag")) description = "Undefined Tag"; 
+		}
+
 		String tmp = description.toUpperCase().replaceAll(" ", "_").replaceAll("__", "_").
 		replaceAll("[^0-9A-Z_]", "");
 		if (tmp.substring(0,1).matches("[0-9]")) tmp = "I" + tmp; 
@@ -262,6 +284,13 @@ public class XmlTranslator {
 		// to long for name differentiation 
 		if( tmp.contains("EXACT_MATCH_ON_TRADE_DATE_STOCK_SYMBOL_QUANTITY") ) {
 			tmp = tmp.replace("EXACT_MATCH_ON_TRADE_DATE_STOCK_SYMBOL_QUANTITY", "");
+		}
+		if( FixRepositoryToQuickFixXml.isNasdaqOMX && tmp.contains("EXACTMATCHONTRADEDATESTOCKSYMBOLQUANTITYPRICETRADETYPEANDSPECIAL") ) {
+			tmp = tmp.replace("EXACTMATCHONTRADEDATESTOCKSYMBOLQUANTITY", "");
+		}
+
+		if( FixRepositoryToQuickFixXml.isNasdaqOMX && tmp.contains("REGISTEREDADDRESS") ) {
+			tmp = tmp + fixEnum;
 		}
 		
 		return tmp.substring(0, tmp.length() > 64 ? 64 : tmp.length());
