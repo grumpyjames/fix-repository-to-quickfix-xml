@@ -1,0 +1,1 @@
+QuickFIX is an open source implementation for the FIX protocol. Both FIX message containers and a FIX engine. Both a [http://www.quickfixj.org/ Java] and [http://www.quickfixengine.org/ C++] implementation exists. 
