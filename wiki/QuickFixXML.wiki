@@ -1,0 +1,1 @@
+QuickFix messages containers in C++ and Java are genreated based on a XML specification of the FIX protocol. See [http://www.quickfixengine.org/xml.html QuickFix XML] 
