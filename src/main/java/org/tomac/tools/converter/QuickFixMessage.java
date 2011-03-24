@@ -17,6 +17,5 @@ public class QuickFixMessage {
 	public ArrayList<QuickFixComponent> components = new ArrayList<QuickFixComponent>();
 	public String msgId;
 	public String specialization;
-	public String direction;
 
 }
