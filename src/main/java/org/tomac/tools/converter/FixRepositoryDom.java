@@ -152,6 +152,9 @@ public class FixRepositoryDom {
 				}
 				if (n.getName().equals("FieldName")) {
 					m.name = n.getText().trim();
+					if (FixRepositoryToQuickFixXml.isNasdaqOMX) {
+						m.name = m.name.replace(", ", "");
+					}
 				}
 			}
 			quickFixFields.add(m);
