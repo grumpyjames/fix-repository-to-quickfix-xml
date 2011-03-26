@@ -37,7 +37,7 @@ public class NordicUtils {
 		if (tag.equals("41")) return "20";
 		if (tag.equals("49")) return "12";
 		if (tag.equals("50")) return "6";
-		if (tag.equals("55")) return "6";
+		if (tag.equals("55")) return "8"; // "6" acc to INET, but longer in Genium
 		if (tag.equals("56")) return "12";
 		if (tag.equals("57")) return "20";
 		if (tag.equals("115")) return "12";
