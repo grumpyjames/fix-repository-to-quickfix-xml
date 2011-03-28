@@ -1,0 +1,52 @@
+#Deploying Maven Artifact
+= Introduction =
+
+Developers note on how to deply artifact.
+For details see [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide].
+
+
+
+= Details =
+
+== Prerequisites ==
+gpg key kreated and known pass phrase. See [https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven].
+Currently tomac.org key exists.
+
+== Steps ==
+ * add to .m2/settings.xml 
+{{{
+  <servers>
+    <server>
+      <id>sonatype-nexus-snapshots</id>
+      <username>your-jira-id</username>
+      <password>your-jira-pwd</password>
+    </server>
+    <server>
+      <id>sonatype-nexus-staging</id>
+      <username>your-jira-id</username>
+      <password>your-jira-pwd</password>
+    </server>
+  </servers>
+}}}
+ * enable maven-gpg-plugin in pom.xml (default uncommented)
+{{{
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+}}}
+
+
+*Deploy*
+mvn clean deploy
+
+Giv the passphrase of the key.
