@@ -1,12 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<!-- parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent-->
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.tomac</groupId>
 	<artifactId>fix-repository-to-quickfix-xml</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>fix-repository-to-quickfix-xml</name>
+	<description>FIX Repository to QuickFix XML is a FIX Repository XML (from fixprotocol.org) to QuickFix formatted XML converter.</description>
 	<url>http://www.tomac.org</url>
+	<licenses>
+		<license>
+			<name>The GNU Lesser General Public License, Version 3</name>
+			<url>http://www.gnu.org/copyleft/lesser.html</url>
+		</license>
+	</licenses>
+	<scm>
+		<connection>scm:svn:http://fix-repository-to-quickfix-xml.googlecode.com/svn/trunk/</connection>
+		<developerConnection>scm:svn:https://fix-repository-to-quickfix-xml.googlecode.com/svn/trunk/</developerConnection>
+		<url>http://fix-repository-to-quickfix-xml.googlecode.com/svn/trunk</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>seto</id>
+			<name>Sebastian Tomac</name>
+			<email>sebastian.tomac@gmail.com</email>
+		</developer>
+	</developers>
 	<dependencies>
 		<dependency>
 			<groupId>dom4j</groupId>
@@ -26,12 +50,26 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
-			<plugin>
+			<!-- enable for signing upon deployment -->
+			<!-- plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin-->
+			<!-- enable for building executable jar -->
+			<!-- plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
 				<configuration>
 					<descriptorRefs>
-						<addClasspath>true</addClasspath>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 					<archive>
@@ -41,7 +79,16 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin-->
 		</plugins>
 	</build>
 
