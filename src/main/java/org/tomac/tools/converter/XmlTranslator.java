@@ -25,6 +25,7 @@ public class XmlTranslator {
 	
 	private boolean isFixT = false;
 	final ArrayList<QuickFixField> fixTFields = new ArrayList<QuickFixField>();
+	final ArrayList<QuickFixComponent> fixTComponents = new ArrayList<QuickFixComponent>();
 	
 	private void addField(Element e, QuickFixField f) {
 		e.addElement("field").addAttribute("name", f.name).addAttribute("required", f.reqd != null && f.reqd.equals("1") ? "Y" : "N");
@@ -54,9 +55,27 @@ public class XmlTranslator {
 		final Element header = root.addElement("header");
 
 		if(!FixRepositoryToQuickFixXml.isStrictQuickFix || isFixT || Integer.valueOf(fixDom.major)<5) {
-			for (final QuickFixField f : fixDom.quickFixHeader.fields) {
-				fixTFields.add(f);
-				addField(header, f);
+			final ArrayList<QuickBase> qQ = new ArrayList<QuickBase>();
+			qQ.addAll(fixDom.quickFixHeader.fields);
+			qQ.addAll(fixDom.quickFixHeader.components);
+			
+			Collections.sort(qQ);
+
+			for (final QuickBase q : qQ) {
+
+				if (q instanceof QuickFixField) {
+					final QuickFixField f = (QuickFixField) q;
+
+					fixTFields.add(f);
+					addField(header, f);
+				}
+
+				if (q instanceof QuickFixComponent) {
+					final QuickFixComponent cc = (QuickFixComponent) q;
+
+					fixTComponents.add(cc);
+					header.addElement("component").addAttribute("name", cc.name).addAttribute("required", cc.reqd.equals("0")?"N":"Y");
+				}
 			}
 		}
 
@@ -129,6 +148,7 @@ public class XmlTranslator {
 						continue; // jet another Nasdaq OMX bug
 					}
 
+					fixTComponents.add(c);
 					message.addElement("component").addAttribute("name", c.name).addAttribute("required", c.reqd.equals("0")?"N":"Y");
 				}
 
@@ -212,7 +232,7 @@ public class XmlTranslator {
 						continue;
 					}
 
-					group.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number).addAttribute("type", getType(f.type));
+					group.addElement("field").addAttribute("name", f.name).addAttribute("number", f.number).addAttribute("type", getType(f.type)).addAttribute("required", f.reqd != null && f.reqd.equals("1") ? "Y" : "N");
 				}
 
 				if (q instanceof QuickFixComponent) {
