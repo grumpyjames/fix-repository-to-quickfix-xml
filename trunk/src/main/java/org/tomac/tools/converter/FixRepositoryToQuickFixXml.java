@@ -102,7 +102,7 @@ public class FixRepositoryToQuickFixXml {
 	static void xmlLoadAndValidate(File repositoryDir, FixRepositoryDom fixDom) throws Exception {
 		repositoryDir.list(new FilenameFilter() {
 
-			@Override
+			//@Override
 			public boolean accept(File dir, String name) {
 				if (name.equalsIgnoreCase(MSGTYPE_XML)) {
 					return true;
