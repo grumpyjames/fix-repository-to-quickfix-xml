@@ -8,7 +8,7 @@ package org.tomac.tools.converter;
 public class QuickBase implements Comparable<QuickBase> {
 	public String position;
 
-	@Override
+	//@Override
 	public int compareTo(QuickBase o) {
 		final QuickBase q = (QuickBase) o;
 		if (q.getInt() > getInt()) {
