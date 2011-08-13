@@ -49,4 +49,4 @@ Currently tomac.org key exists.
 *Deploy*
 mvn clean deploy
 
-Giv the passphrase of the key.
+Give the passphrase of the key.
