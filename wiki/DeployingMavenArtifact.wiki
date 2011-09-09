@@ -1,19 +1,20 @@
-#Deploying Maven Artifact
-= Introduction =
+<b>Deploying Maven Artifact</b>
+<h2>Introduction</h2>
 
 Developers note on how to deply artifact.
-For details see [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide].
+For details see <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide"/>.
 
 
 
-= Details =
+<h2>Details</h2>
 
-== Prerequisites ==
-gpg key kreated and known pass phrase. See [https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven].
+<h3>Prerequisites</h3>
+gpg key kreated and known pass phrase. See <a ="https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven/>.
 Currently tomac.org key exists.
 
-== Steps ==
- * add to .m2/settings.xml 
+<h3>Steps</h3>
+<ol>
+<li>add to .m2/settings.xml     
 {{{
   <servers>
     <server>
@@ -28,25 +29,26 @@ Currently tomac.org key exists.
     </server>
   </servers>
 }}}
- * enable maven-gpg-plugin in pom.xml (default uncommented)
+</li>
+<li>enable maven-gpg-plugin in pom.xml (default uncommented)
 {{{
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+                <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals> 
+                                <goal>sign</goal>
+                        </goals>
+                </execution>
+        </executions>
+</plugin>
 }}}
-
-
-*Deploy*
+</li>
+</ol>
+<b>Deploy</b>
 mvn clean deploy
 
 Give the passphrase of the key.
