@@ -2,11 +2,34 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project fix-repository-to-quickfix-xml">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
-    <target name="create_run_jar">
-        <jar destfile="target/fix-repository-to-quickfix-xml-1.0.jar" filesetmanifest="mergewithoutmain">
+	<exec outputproperty="build.current.revision" executable="svnversion">
+	         <arg line="-n -c" />
+	         <redirector>
+	           <outputfilterchain>
+	             <tokenfilter>
+	                 <replaceregex pattern="^[0-9]*:?" replace="" flags="g"/>
+	             </tokenfilter>
+	          </outputfilterchain>
+	        </redirector>
+	</exec>
+	
+	<target name="create_run_jar">
+        <property name="version.num" value="1.1"/>
+		<property name="build.num" value="${build.current.revision}" />
+		<tstamp>
+    	  <format property="TODAY" pattern="yyyy-MM-dd HH:mm:ss" />
+    	</tstamp>
+    	
+        <jar destfile="target/fix-repository-to-quickfix-xml.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Main-Class" value="org.tomac.tools.converter.FixRepositoryToQuickFixXml"/>
                 <attribute name="Class-Path" value="."/>
+
+                <attribute name="Implementation-Title" value="Fix Repository to Quickfix xml"/>   
+                <attribute name="Implementation-Version" value="${version.num}-r${build.num}"/>   
+                <attribute name="Implementation-Vendor" value="Sebastian Tomac tomac.org"/>   
+            	<attribute name="Created-By" value="Sebastian Tomac"/>
+                <attribute name="Built-Date" value="${TODAY}"/> 
             </manifest>
             <fileset dir="bin"/>
             <zipfileset excludes="META-INF/*.SF" src="src/main/resources/dom4j-1.6.1.jar"/>
