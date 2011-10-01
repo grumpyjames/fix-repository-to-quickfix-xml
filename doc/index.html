@@ -1,0 +1,46 @@
+FIX Repository to <a href="http://www.quickfixengine.org/xml.html">QuickFix XML</a> is a FIX Repository XML (from <a href="http://fixprotocol.org">fixprotocol.org</a>) to QuickFix formatted XML converter hosted at <a href="http://code.google.com/p/fix-repository-to-quickfix-xml/">http://code.google.com/p/fix-repository-to-quickfix-xml/</a>. QuickFix XML is used for creating FIX protocol message container code generation.
+<h2>Summary</h2>
+FIX Repository to <a href="http://code.google.com/p/fix-repository-to-quickfix-xml/wiki/QuickFix">QuickFix</a> XML is a FIX Repository XML (from <a rel="nofollow">fixprotocoll.org</a>) to <a href="http://code.google.com/p/fix-repository-to-quickfix-xml/wiki/QuickFix">QuickFix</a> formatted XML converter. <a rel="nofollow">QuickFixXML</a> is used for creating FIX protocol message container code generation.
+<h3>Usage</h3>
+Prerequisites: Java 1.6 or later installed
+<ol>
+	<li>Download the latest fix-repository-to-quickfix-xml.jar</li>
+	<li>Download and unpack the FIX Repository XML. Get the FIX repository from your exchange or FIX <a href="http://www.fixprotocol.org/repository" rel="nofollow">http://www.fixprotocol.org/repository</a>. Unpack the zip file, and you will have a directory containg atleast the following files:
+<code>Components.xml
+Enums.xml
+Fields.xml
+MsgContents.xml
+MsgType.xml</code>
+</li>
+	<li>Run the fix-repository-to-quickfix-xml converter;
+<code language="winbatch">java -DisStrictQuickFix=true -DfixVersion=<fix_version> 
+-jar fix-repository-to-quickfix-xml-<version>.jar 
+<directory_with_fix_repository> <name_of_new_quickfix_xml_file></code>
+</li>
+</ol>
+<strong>Example:</strong> assuming unpacking the repository in C:\temp\repository and the downloaded jar in C:\temp.
+<code language="winbatch">java -DisStrictQuickFix=true -DfixVersion=FIX.5.0SP2 
+-jar "C:\temp\fix-repository-to-quickfix-xml-1.0.jar" 
+"C:\temp\repository" "C:\temp\FIX50.xml"</code>
+To generate FIXT.1.1 for FIX.5.0
+<code language="winbatch">java -DisStrictQuickFix=true -DfixVersion=FIXT.1.1 
+-jar "C:\temp\fix-repository-to-quickfix-xml-1.0.jar" 
+"C:\temp\repository" "C:\temp\FIXT11.xml"</code>
+<span class="Apple-style-span" style="color: #000000; font-weight: bold;">XML</span>
+
+Sample of QuickFixXML based on FIX Repository XML
+<ul>
+	<li><a href="http://tomac.org/download/QuickFixNordicINETFIX42.xml" rel="nofollow">Nasdaq OMX Nordic Equities</a></li>
+	<li><a href="http://tomac.org/download/QuickFixNordicGeniumINETFIX44.xml" rel="nofollow">Nasdaq OMX Nordic Derivatives and Fixed Income</a></li>
+</ul>
+<h3>Download</h3>
+Download the latest release of the FIX Repository to QuickFixXML converter from <a href="http://code.google.com/p/fix-repository-to-quickfix-xml/downloads/list" rel="nofollow">http://code.google.com/p/fix-repository-to-quickfix-xml/downloads/list</a>,  or if you are using maven as build add the dependency
+{{{
+<dependencies>
+  <dependency>
+    <groupId>org.tomac</groupId>
+    <artifactId>fix-repository-to-quickfix-xml</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </dependency>
+</dependencies>
+}}}
