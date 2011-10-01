@@ -1,15 +1,15 @@
 <b>Deploying Maven Artifact</b>
 <h2>Introduction</h2>
 
-Developers note on how to deply artifact.
-For details see <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide"/>.
+Developers note on how to deploy artifact.
+For details see <a href="https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide">Sonatype OSS Maven Repository Usage Guide</a>.
 
 
 
 <h2>Details</h2>
 
 <h3>Prerequisites</h3>
-gpg key kreated and known pass phrase. See <a ="https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven/>.
+gpg key created and known pass phrase. See <a href="https://docs.sonatype.org/display/Repository/How+To+Generate+PGP+Signatures+With+Maven>How To Generate PGP Signatures With Maven</a>.
 Currently tomac.org key exists.
 
 <h3>Steps</h3>
